@@ -1,4 +1,4 @@
-package com.selenium.test.tools;
+package com.selenium.test.utils;
 
 import java.io.*;
 import java.text.Format;
@@ -14,7 +14,7 @@ import java.util.zip.ZipInputStream;
 public class FileUnzipTools {
     private static final int BUFFER_SIZE = 4096;
 
-    public void unZip(String zipFilePath, String destDirectory) throws IOException {
+    public void unZip(String zipFilePath, String destDirectory) {
         FileGetter fileGetter = new FileGetter();
         ArrayList<String> filesPath = fileGetter.getAllFilesFromPathByMask(zipFilePath, ".zip");
         for (String zipFile : filesPath) {
@@ -22,22 +22,33 @@ public class FileUnzipTools {
             if (!destDir.exists()) {
                 destDir.mkdir();
             }
-            ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFile));
-            ZipEntry entry = zipIn.getNextEntry();
-            // iterates over entries in the zip file
-            while (entry != null) {
-                String filePath = destDirectory + File.separator + entry.getName();
-                Format dateFormat = new SimpleDateFormat("yyyy MM dd");
-                Date curentDate = new Date();
-                boolean isCurrentFileCorrect = dateFormat.format(curentDate).equals(dateFormat.format(entry.getTime()));
-                if (!entry.isDirectory() && isCurrentFileCorrect) {
-                    // if the entry is a file, extracts it
-                    extractFile(zipIn, filePath);
-                }
-                zipIn.closeEntry();
-                entry = zipIn.getNextEntry();
+            ZipInputStream zipIn = null;
+            try {
+                zipIn = new ZipInputStream(new FileInputStream(zipFile));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
             }
-            zipIn.close();
+            ZipEntry entry = null;
+            try {
+                entry = zipIn.getNextEntry();
+
+                // iterates over entries in the zip file
+                while (entry != null) {
+                    String filePath = destDirectory + File.separator + entry.getName();
+                    Format dateFormat = new SimpleDateFormat("yyyy MM dd");
+                    Date curentDate = new Date();
+                    boolean isCurrentFileCorrect = dateFormat.format(curentDate).equals(dateFormat.format(entry.getTime()));
+                    if (!entry.isDirectory() && isCurrentFileCorrect) {
+                        // if the entry is a file, extracts it
+                        extractFile(zipIn, filePath);
+                    }
+                    zipIn.closeEntry();
+                    entry = zipIn.getNextEntry();
+                }
+                zipIn.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

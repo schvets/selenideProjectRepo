@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.support.FindBy;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -66,29 +67,32 @@ public class ReportPage {
         Calendar calendar = new GregorianCalendar();
         calendar.add(Calendar.DATE, -1);
         String startDate = curentFormatDate.format(calendar.getTime());
-        CreateButton.click();
+/*        CreateButton.click();
         TypeReportArrow.click();
         FilterTextInputLabel.sendKeys("INKASR");
-        SubmitSerchResult.click();
+        SubmitSerchResult.click();*/
         DayQualifier dayQualifier = new DayQualifier();
         int currentDayNum = dayQualifier.getWeekDay(new java.util.Date());
         Calendar newCalendar = Calendar.getInstance();
         if (currentDayNum == 1) {
             newCalendar.add(Calendar.DATE, -3);
             String endDate = curentFormatDate.format(newCalendar.getTime());
-            EndDateInputLabel.sendKeys(endDate);
+            /*EndDateInputLabel.sendKeys(endDate);*/
         } else {
             newCalendar.add(Calendar.DATE, -1);
             String endDate = curentFormatDate.format(newCalendar.getTime());
-            EndDateInputLabel.sendKeys(endDate);
+            /*EndDateInputLabel.sendKeys(endDate);*/
         }
-        StartDateInputLabel.sendKeys(startDate);
+        /*StartDateInputLabel.sendKeys(startDate);
         SubTypeDropdown.selectOptionContainingText("TRANSACTION - Отчёт по транзакциям инкасаторов");
-        CreateReportButton.click();
+        CreateReportButton.click();*/
         ReportFilter.sendKeys("INKASR");
         int reportCount = $$("td:nth-child(8)").size();
         if (reportCount > 1) {
+            sleep(180000);
+            refresh();
             for (int i = 1; i <= reportCount; i++) {
+                System.out.println(i);
                 String dateSelector = ("#exam > tbody > tr:nth-child(" + i + ") > td:nth-child(6)");
                 String reportDate = StringUtils.substring($(dateSelector).getText(), 0, 10);
                 String reportDateFormat = String.format("%1$s/%2$s/%3$s",
@@ -97,22 +101,11 @@ public class ReportPage {
                         StringUtils.substring(reportDate, 8, 10));
                 Calendar reportCalendar = Calendar.getInstance();
                 String reportStartDate = curentFormatDate.format(reportCalendar.getTime());
+                System.out.println(reportStartDate);
                 String selector = "#exam > tbody > tr:nth-child(" + i + ") > td:nth-child(8)";
-                while ($(selector).getText().equals("Файл не создан")) {
-                    try {
-                        Thread.sleep(180000);
-                        refresh();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
                 if (reportDateFormat.equals(reportStartDate)) {
                     $(selector).click();
-                    try {
-                        Thread.sleep(30000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    sleep(15000);
                 }
             }
         } else {
@@ -132,5 +125,16 @@ public class ReportPage {
                 e.printStackTrace();
             }
         }
+    }
+
+
+    public ArrayList<String> getAnnualInkasrReportName() {
+        int reportCount = $$("td:nth-child(8)").size();
+        ArrayList<String> reportNames = new ArrayList<>();
+        for (int i = 1; i <= reportCount; i++) {
+            String selector = "#exam > tbody > tr:nth-child(" + i + ") > td:nth-child(8)";
+            reportNames.add($(selector).getText());
+        }
+        return reportNames;
     }
 }

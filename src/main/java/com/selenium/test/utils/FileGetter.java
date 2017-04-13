@@ -1,4 +1,4 @@
-package com.selenium.test.tools;
+package com.selenium.test.utils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.stream.Stream;
+
 
 /**
  * Created by 485 on 12.04.2017.
